@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upsolve Plan · <%= handle %></title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar"><a class="logo" href="/"><span>&lt;/&gt;</span> Upsolve Planner</a><form action="/planner" method="get" class="mini-form"><input name="handle" value="<%= handle %>" placeholder="Codeforces handle" required><button>Analyze</button></form></header>
+  <main class="dashboard">
+    <% if (error) { %>
+      <section class="message-card error"><div class="message-icon">!</div><h1>Let's try that again</h1><p><%= error %></p><a class="primary-link" href="/">Back to home</a></section>
+    <% } else if (data.noSubmissions) { %>
+      <section class="message-card"><div class="message-icon">✓</div><h1>No submissions yet</h1><p><strong><%= handle %></strong> has no public Codeforces submissions. Complete a problem first, then come back for an upsolve plan.</p><a class="primary-link" href="/">Try another handle</a></section>
+    <% } else { %>
+      <section class="heading"><div><p class="eyebrow">UPSOLVE PLAN</p><h1><%= handle %>'s unfinished problems</h1><p>Problems you attempted but have not solved, ordered by rating.</p></div><a href="/" class="text-link">← New analysis</a></section>
+      <section class="stats-grid">
+        <article class="stat-card"><span>Attempted</span><strong><%= data.stats.attempted %></strong><small>unique problems</small></article>
+        <article class="stat-card"><span>Solved</span><strong><%= data.stats.solved %></strong><small>unique problems</small></article>
+        <article class="stat-card accent"><span>Ready to upsolve</span><strong><%= data.stats.totalUpsolve %></strong><small>unfinished attempts</small></article>
+        <article class="stat-card"><span>Average rating</span><strong><%= data.stats.averageRating || '—' %></strong><small>of rated problems</small></article>
+        <article class="stat-card"><span>Rating range</span><strong><%= data.stats.lowest || '—' %> <i>–</i> <%= data.stats.highest || '—' %></strong><small>lowest to highest</small></article>
+      </section>
+      <section class="section"><div class="section-title"><h2>Rating distribution</h2><p>Where your upsolve list is concentrated.</p></div>
+        <% if (data.distribution.length) { %><div class="distribution"><% data.distribution.forEach(({rating, count}) => { %><div class="rating-card"><span><%= rating %></span><strong><%= count %></strong><small><%= count === 1 ? 'problem' : 'problems' %></small></div><% }) %></div><% } else { %><p class="empty">No rated unfinished problems found.</p><% } %>
+      </section>
+      <section class="section table-section"><div class="table-heading"><div class="section-title"><h2>Your upsolve queue</h2><p id="table-count"><%= data.upsolve.length %> problems to revisit.</p></div><div class="filters"><input id="search" type="search" placeholder="Search problem name" aria-label="Search problem name"><select id="rating-filter" aria-label="Filter by rating"><option value="">All ratings</option><% data.ratingOptions.forEach((rating) => { %><option value="<%= rating %>"><%= rating %></option><% }) %></select></div></div>
+        <% if (data.upsolve.length) { %><div class="table-wrap"><table><thead><tr><th>Problem</th><th>Rating</th><th>Tags</th><th>Contest</th><th>Link</th></tr></thead><tbody id="problem-table"><% data.upsolve.forEach((problem) => { const url = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`; %><tr data-name="<%= problem.name.toLowerCase() %>" data-rating="<%= problem.rating || '' %>"><td><a class="problem-link" href="<%= url %>" target="_blank" rel="noopener"><%= problem.name %></a><small><%= problem.index %></small></td><td><span class="rating"><%= problem.rating || 'Unrated' %></span></td><td><div class="tags"><% problem.tags.forEach((tag, index) => { %><span class="tag tag-<%= index % 5 %>"><%= tag %></span><% }) %></div></td><td>#<%= problem.contestId %></td><td><a class="external" href="<%= url %>" target="_blank" rel="noopener">Open ↗</a></td></tr><% }) %></tbody></table></div><p id="no-results" class="empty hidden">No problems match those filters.</p><% } else { %><p class="empty">Great work — every problem you attempted is already solved.</p><% } %>
+      </section>
+    <% } %>
+  </main>
+  <% if (data && !data.noSubmissions && !error) { %><script>
+    const search = document.getElementById('search'), rating = document.getElementById('rating-filter'), rows = [...document.querySelectorAll('#problem-table tr')], count = document.getElementById('table-count'), empty = document.getElementById('no-results');
+    function filter() { let visible = 0; rows.forEach(row => { const match = row.dataset.name.includes(search.value.trim().toLowerCase()) && (!rating.value || row.dataset.rating === rating.value); row.hidden = !match; if (match) visible++; }); count.textContent = `${visible} ${visible === 1 ? 'problem' : 'problems'} to revisit.`; empty.classList.toggle('hidden', visible !== 0); }
+    search.addEventListener('input', filter); rating.addEventListener('change', filter);
+  </script><% } %>
+</body>
+</html>
