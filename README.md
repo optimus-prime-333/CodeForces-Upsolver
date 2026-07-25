@@ -78,26 +78,26 @@ The final list is sorted by rating in ascending order so users can start with ea
 ```text
 project/
 |-- api/
-|   `-- index.js
+|    -- index.js
 |-- server.js
 |-- package.json
 |-- package-lock.json
 |-- routes/
-|   `-- index.js
+|    -- index.js
 |-- services/
-|   `-- codeforces.js
+|    -- codeforces.js
 |-- public/
-|   `-- style.css
+|    -- style.css
 |-- views/
 |   |-- home.ejs
-|   `-- result.ejs
+|    -- result.ejs
 |-- .github/
-|   `-- workflows/
+|    -- workflows/
 |       |-- ci.yml
-|       `-- vercel-deploy.yml
+|        -- vercel-deploy.yml
 |-- vercel.json
 |-- .gitignore
-`-- README.md
+ -- README.md
 ```
 
 ## Installation
